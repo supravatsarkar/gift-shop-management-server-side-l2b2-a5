@@ -3,34 +3,41 @@ import { NextFunction } from "express-serve-static-core";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import AppError from "../../errors/AppError";
-import { userService } from "../user/user.service";
 import { TUser } from "../user/user.interface";
 import httpStatus from "../../constants/httpStatus";
+import { authService } from "./auth.service";
 
 const registerUser = catchAsync(async (req, res, next) => {
   const body = req.body;
-  const user = await userService.createUser(body);
-  sendResponse<TUser>(res, {
+  console.log("register user controller=>", body);
+  const user = await authService.createUser(body);
+  sendResponse<Partial<TUser>>(res, {
     statusCode: httpStatus.CREATED,
     message: "User registered successfully!",
     data: user,
   });
 });
 
-const getMe = catchAsync(async (req, res, next) => {
-  console.log("run....");
-
-  next(new AppError(400, "Invalid params"));
-  return;
+const login = catchAsync(async (req, res, next) => {
+  const { email, phone, password } = req.body;
+  const response = await authService.login(email, phone, password);
   sendResponse<Record<string, unknown>>(res, {
     success: true,
     statusCode: httpStatus.ACCEPTED,
     message: "success",
-    data: {},
+    data: response,
+  });
+});
+const renewAccessToken = catchAsync(async (req, res, next) => {
+  const { refreshToken } = req.body;
+  const data = await authService.renewAccessToken(refreshToken);
+  sendResponse<Record<string, unknown>>(res, {
+    data: data,
   });
 });
 
-export default {
+export const authController = {
   registerUser,
-  getMe,
+  login,
+  renewAccessToken,
 };

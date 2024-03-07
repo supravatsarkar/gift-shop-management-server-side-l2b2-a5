@@ -11,5 +11,30 @@ const userRegisterSchema = z.object({
     password: z.string({ required_error: "Password must be required" }),
   }),
 });
+const loginSchema = z.object({
+  body: z
+    .object({
+      email: z.string().email().optional(),
+      phone: z.string().optional(),
+      password: z.string({ required_error: "Password must be required" }),
+    })
+    .refine(
+      ({ phone, email }) => {
+        if (phone && email) return false;
+        return phone || email;
+      },
+      { message: "Please provide one of email or phone" }
+    ),
+});
 
-export { userRegisterSchema };
+const renewAccessTokenSchema = z.object({
+  body: z.object({
+    refreshToken: z.string({ required_error: "Refresh token is required!" }),
+  }),
+});
+
+export const authValidation = {
+  userRegisterSchema,
+  loginSchema,
+  renewAccessTokenSchema,
+};

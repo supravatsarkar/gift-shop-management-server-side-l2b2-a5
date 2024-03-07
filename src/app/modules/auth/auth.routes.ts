@@ -1,20 +1,23 @@
-import {
-  NextFunction,
-  Request,
-  RequestHandler,
-  Response,
-  Router,
-} from "express";
-import authController from "./auth.controller";
-import { userRegisterSchema } from "./auth.validation";
+import { Router } from "express";
+import { authValidation } from "./auth.validation";
 import validateRequest from "../../middlewares/validateRequest";
+import { authController } from "./auth.controller";
 const router = Router();
 
 router.post(
   "/register",
-  validateRequest(userRegisterSchema),
+  validateRequest(authValidation.userRegisterSchema),
   authController.registerUser
 );
-router.get("/get-me", authController.getMe);
+router.post(
+  "/login",
+  validateRequest(authValidation.loginSchema),
+  authController.login
+);
+router.post(
+  "/renew-access-token",
+  validateRequest(authValidation.renewAccessTokenSchema),
+  authController.renewAccessToken
+);
 
 export const authRouter = router;
