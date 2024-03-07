@@ -3,10 +3,11 @@ import { TResponseData } from "../interface/types";
 
 const sendResponse = <TData>(
   res: Response,
-  responseData: TResponseData<TData>
+  responseData: Partial<TResponseData<TData>>
 ) => {
-  return res.status(responseData.statusCode).json({
-    statusCode: responseData.statusCode || 200,
+  const statusCode = responseData.statusCode || 200;
+  return res.status(statusCode).json({
+    statusCode,
     message: responseData.message || "Execution Success!",
     data: responseData.data || {},
   });

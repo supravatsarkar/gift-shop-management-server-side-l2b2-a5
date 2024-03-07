@@ -4,3 +4,8 @@ export type TResponseData<TData> = {
   message: string;
   data: TData;
 };
+
+export type TErrorDetails = {
+  message: string;
+  path: string;
+};

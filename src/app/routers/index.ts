@@ -6,7 +6,6 @@ const router = Router();
 router.use(
   "/auth",
   (req, res, next) => {
-    console.log("Running under router");
     next();
   },
   authRouter

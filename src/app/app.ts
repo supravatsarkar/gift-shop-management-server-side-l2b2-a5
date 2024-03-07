@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import router from "./routers";
 import notFoundHandler from "./middlewares/notFoundHandler";
+import globalErrorHandler from "./middlewares/globalErrorHandler";
 
 const app: Application = express();
 
@@ -27,5 +28,6 @@ app.use(
 );
 
 app.use("*", notFoundHandler);
+app.use(globalErrorHandler);
 
 export default app;
