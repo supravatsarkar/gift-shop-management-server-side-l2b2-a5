@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { TJwtPayload, TRoles } from "../interface/types";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../config";
 import AppError from "../errors/AppError";
 import httpStatus from "../constants/httpStatus";
@@ -15,12 +15,16 @@ const auth = (...roles: TRoles[]) => {
       if (!tokenString) {
         throw new AppError(httpStatus.UNAUTHORIZED, "Authentication failed!");
       }
-      const decodedPayload = (await jwt.verify(
-        tokenString as string,
-        config.jwt_access_secret as string
-      )) as TJwtPayload;
-      console.log({ decodedPayload });
-
+      let decodedPayload: JwtPayload;
+      try {
+        decodedPayload = (await jwt.verify(
+          tokenString as string,
+          config.jwt_access_secret as string
+        )) as TJwtPayload;
+        console.log({ decodedPayload });
+      } catch (error) {
+        throw new AppError(httpStatus.UNAUTHORIZED, "Authentication failed!");
+      }
       if (!roles.includes(decodedPayload.role)) {
         throw new AppError(
           httpStatus.FORBIDDEN,

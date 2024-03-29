@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import config from "../config";
 import { TJwtPayload } from "../interface/types";
 import jwt from "jsonwebtoken";
+import { SortOrder } from "mongoose";
 const _encryptPassword = async (password: string) => {
   const hashedPassword = await bcrypt.hash(
     password,
@@ -32,4 +33,13 @@ const _verifyAuthToken = async (tokenString: string) => {
   } catch (error) {}
 };
 
-export { _encryptPassword, _comparePassword, _generateAuthToken };
+const _sortOrder = (sortby: string = "createdAt", order: string = "asc") => {
+  // console.log("order", order);
+  const _order = order === "asc" ? 1 : -1;
+  // console.log("_order", _order);
+  return {
+    [sortby]: _order as SortOrder,
+  };
+};
+
+export { _encryptPassword, _comparePassword, _generateAuthToken, _sortOrder };

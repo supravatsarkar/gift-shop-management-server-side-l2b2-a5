@@ -2,6 +2,7 @@ import httpStatus from "../../constants/httpStatus";
 import AppError from "../../errors/AppError";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
+import { userService } from "./user.service";
 
 const getMe = catchAsync(async (req, res, next) => {
   const user = req.user;
@@ -12,5 +13,22 @@ const getMe = catchAsync(async (req, res, next) => {
     data: user,
   });
 });
+const getMangers = catchAsync(async (req, res, next) => {
+  const managers = await userService.findUsersByFilter({ role: "manager" });
+  console.log({ managers });
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.ACCEPTED,
+    data: managers,
+  });
+});
+const getCustomers = catchAsync(async (req, res, next) => {
+  const customers = await userService.findUsersByFilter({ role: "customer" });
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.ACCEPTED,
+    data: customers,
+  });
+});
 
-export const userController = { getMe };
+export const userController = { getMe, getMangers, getCustomers };

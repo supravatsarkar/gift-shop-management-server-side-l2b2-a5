@@ -6,9 +6,17 @@ const findUserByFilter = async (filter: Partial<TUser>) => {
   //   if(filter.id){
   //     filter.id = new
   //   }
-  return await UserModel.findOne(filter);
+  return await UserModel.findOne(filter).select("-password");
+};
+const findUsersByFilter = async (filter: Partial<TUser>) => {
+  filter.isDeleted = false;
+  //   if(filter.id){
+  //     filter.id = new
+  //   }
+  return await UserModel.find(filter).select("-password");
 };
 
 export const userService = {
   findUserByFilter,
+  findUsersByFilter,
 };

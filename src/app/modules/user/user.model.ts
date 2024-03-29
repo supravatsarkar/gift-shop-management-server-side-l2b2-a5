@@ -26,6 +26,14 @@ const userSchema = new Schema<TUser>(
       required: true,
       default: "customer",
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isEnabled: {
+      type: Boolean,
+      default: false,
+    },
     isDeleted: {
       type: Boolean,
       default: false,

@@ -2,15 +2,31 @@ import express, { Application } from "express";
 import router from "./routers";
 import notFoundHandler from "./middlewares/notFoundHandler";
 import globalErrorHandler from "./middlewares/globalErrorHandler";
+import cookeParser from "cookie-parser";
+import cors from "cors";
 
 const app: Application = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookeParser());
+app.use(
+  cors({
+    // origin: "*",
+    origin: ["http://localhost:5173", "http://localhost:3000"],
+    credentials: true,
+  })
+);
+// app.use(cors());
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
-  console.log({ params: req.params, query: req.query, body: req.body });
+  console.log({
+    cookies: req.cookies,
+    params: req.params,
+    query: req.query,
+    body: req.body,
+  });
   next();
 });
 

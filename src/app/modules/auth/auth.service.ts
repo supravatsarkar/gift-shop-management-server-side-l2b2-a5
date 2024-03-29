@@ -30,6 +30,8 @@ const createUser = async (userData: TUser) => {
     }
 
     userData.password = await _encryptPassword(userData.password);
+    userData.isEnabled = true;
+    userData.isVerified = true;
     const user = (await UserModel.create(userData)) as Partial<TUser>;
     delete user.password;
     return user;

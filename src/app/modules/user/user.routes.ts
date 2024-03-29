@@ -6,10 +6,12 @@ import { TRoles } from "../../interface/types";
 
 const router = Router();
 
+router.get("/me", auth("admin", "manager", "customer"), userController.getMe);
+router.get("/get-managers", auth("admin"), userController.getMangers);
 router.get(
-  "/me",
-  auth("master-admin", "admin", "manager", "customer"),
-  userController.getMe
+  "/get-customers",
+  auth("admin", "manager"),
+  userController.getCustomers
 );
 
 export const userRouter = router;

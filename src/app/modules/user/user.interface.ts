@@ -8,5 +8,7 @@ export interface TUser {
   phone: string;
   password: string;
   role: TRoles;
+  isVerified: boolean;
+  isEnabled: boolean;
   isDeleted: boolean;
 }
