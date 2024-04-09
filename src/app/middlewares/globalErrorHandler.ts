@@ -3,7 +3,7 @@ import AppError from "../errors/AppError";
 import config from "../config";
 import { ZodError } from "zod";
 import { TErrorDetails } from "../interface/types";
-import zodErrorParse from "../errors/ZodError";
+import zodErrorParse from "../errors/zodError";
 
 const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
   console.log({ GlobalError: error });

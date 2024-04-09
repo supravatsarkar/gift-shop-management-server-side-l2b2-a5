@@ -15,36 +15,95 @@ const createBulkProduct = async (payloads: TProduct[]) => {
 const getProductById = async (id: string) => {
   return await ProductModel.findById(id);
 };
+// const getAllProductByFilter = async ({
+//   page,
+//   limit,
+//   sortby,
+//   order,
+//   ...rest
+// }: {
+//   page: number;
+//   limit: number;
+//   sortby: string;
+//   order: string;
+//   rest: Record<string, unknown>;
+// }) => {
+//   // let {page, limit, ...rest}:{page:number, limit:number, rest:Partial<TProduct>} = query;
+//   page <= 0 ? (page = 1) : page;
+//   page = Number(page || pagination.page);
+//   limit = Number(limit || pagination.limit);
+//   sortby = sortby;
+
+//   const skip = (page - 1) * limit;
+//   const filter = { ...rest } as Partial<TProduct>;
+//   // filter.deletedAt = { $eq: null };
+
+//   const sortObject = _sortOrder(sortby, order);
+//   console.log("sortObject=>", sortObject);
+//   const count = await ProductModel.countDocuments(filter);
+//   const countPage = Math.ceil(count / limit);
+//   const products = await ProductModel.find(filter)
+//     .skip(skip)
+//     .limit(limit)
+//     // .sort([[`${sortby}`, order]]);
+//     .sort(sortObject);
+//   return {
+//     page,
+//     limit,
+//     count,
+//     countPage,
+//     products,
+//   };
+// };
 const getAllProductByFilter = async ({
+  isActive = false,
   page,
   limit,
   sortby,
   order,
   ...rest
 }: {
+  isActive: boolean;
   page: number;
   limit: number;
   sortby: string;
   order: string;
   rest: Record<string, unknown>;
 }) => {
-  // let {page, limit, ...rest}:{page:number, limit:number, rest:Partial<TProduct>} = query;
+  page <= 0 ? (page = 1) : page;
+  console.log("page=>", page);
   page = Number(page || pagination.page);
   limit = Number(limit || pagination.limit);
-  sortby = sortby;
 
   const skip = (page - 1) * limit;
-  const filter = { ...rest } as Partial<TProduct>;
-  // filter.deletedAt = { $eq: null };
-
-  const sortObject = _sortOrder(sortby, order);
-  console.log("sortObject=>", sortObject);
-  const count = await ProductModel.countDocuments(filter);
+  let filter = { ...rest } as Partial<TProduct>;
+  const newFilter: any = filter;
+  for (const key in newFilter) {
+    console.log("key", key);
+    if (!(key == "price" || key == "quantity")) {
+      newFilter[key] = { $regex: new RegExp(newFilter[key], "i") };
+    } else {
+      newFilter[key] = Number(newFilter[key]);
+    }
+  }
+  if (isActive) {
+    newFilter.deletedAt = { $eq: null };
+  }
+  filter = newFilter;
+  console.log("filter=>", filter);
+  const sortObject = _sortOrder(sortby as string, order as string);
+  console.log("sortObject", sortObject);
+  const count = await ProductModel.countDocuments({
+    ...filter,
+    // deletedAt: { $eq: null },
+  });
   const countPage = Math.ceil(count / limit);
-  const products = await ProductModel.find(filter)
+  const products = await ProductModel.find({
+    ...filter,
+    // deletedAt: { $eq: null },
+  })
     .skip(skip)
     .limit(limit)
-    // .sort([[`${sortby}`, order]]);
     .sort(sortObject);
   return {
     page,
@@ -54,35 +113,58 @@ const getAllProductByFilter = async ({
     products,
   };
 };
-const getAllActiveProductByFilter = async ({
+const getInventory = async ({
   page,
   limit,
   sortby,
   order,
-  ...rest
+  search,
 }: {
   page: number;
   limit: number;
   sortby: string;
   order: string;
-  rest: Record<string, unknown>;
+  search: string;
 }) => {
+  page <= 0 ? (page = 1) : page;
   page = Number(page || pagination.page);
+  console.log("page=>", page);
   limit = Number(limit || pagination.limit);
 
   const skip = (page - 1) * limit;
-  const filter = { ...rest } as Partial<TProduct>;
+
   const sortObject = _sortOrder(sortby as string, order as string);
   console.log("sortObject", sortObject);
+  const orQuery = [
+    {
+      name: { $regex: new RegExp(search, "i") },
+    },
+    {
+      category: { $regex: new RegExp(search, "i") },
+    },
+    {
+      occasion: { $regex: new RegExp(search, "i") },
+    },
+    {
+      theme: { $regex: new RegExp(search, "i") },
+    },
+    {
+      brand: { $regex: new RegExp(search, "i") },
+    },
+    {
+      recipient: { $regex: new RegExp(search, "i") },
+    },
+  ];
   const count = await ProductModel.countDocuments({
-    ...filter,
+    quantity: { $gt: 0 },
     deletedAt: { $eq: null },
-  });
+  }).or(orQuery);
   const countPage = Math.ceil(count / limit);
   const products = await ProductModel.find({
-    ...filter,
+    quantity: { $gt: 0 },
     deletedAt: { $eq: null },
   })
+    .or(orQuery)
     .skip(skip)
     .limit(limit)
     .sort(sortObject);
@@ -128,6 +210,11 @@ const deleteBulkProductByIds = async (ids: string[]) => {
   );
 };
 const updateProductById = async (id: string, payload: Partial<TProduct>) => {
+  const product = await ProductModel.findById(id);
+  // console.log({ product });
+  if (!product) {
+    throw new AppError(httpStatus.NOT_FOUND, "Product not found!");
+  }
   return await ProductModel.findByIdAndUpdate(
     id,
     { ...payload },
@@ -143,6 +230,7 @@ export const productService = {
   deleteBulkProductByIds,
   updateProductById,
   getAllProductByFilter,
-  getAllActiveProductByFilter,
+  // getAllActiveProductByFilter,
   createBulkProduct,
+  getInventory,
 };

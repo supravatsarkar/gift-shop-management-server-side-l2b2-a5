@@ -14,6 +14,18 @@ const createProductValidationSchema = z.object({
     brand: z.string({ required_error: "Product brand must be require" }),
   }),
 });
+const updateProductValidationSchema = z.object({
+  body: z.object({
+    name: z.string().optional(),
+    price: z.number().optional(),
+    quantity: z.number().optional(),
+    occasion: z.string().optional(),
+    recipient: z.string().optional(),
+    category: z.string().optional(),
+    theme: z.string().optional(),
+    brand: z.string().optional(),
+  }),
+});
 const createBulkProductValidationSchema = z.object({
   body: z.array(
     z.object({
@@ -50,6 +62,7 @@ const deleteBulkProductByIdValidationSchema = z.object({
 
 export const productValidation = {
   createProductValidationSchema,
+  updateProductValidationSchema,
   createBulkProductValidationSchema,
   deleteBulkProductByIdValidationSchema,
 };

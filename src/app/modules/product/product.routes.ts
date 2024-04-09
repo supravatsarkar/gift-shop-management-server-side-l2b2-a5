@@ -12,18 +12,24 @@ router.post(
   validateRequest(productValidation.createProductValidationSchema),
   productController.createProduct
 );
+router.put(
+  "/update-product/:id",
+  auth("admin", "manager"),
+  validateRequest(productValidation.updateProductValidationSchema),
+  productController.updateProductById
+);
 router.post(
   "/create-bulk-product",
   auth("admin", "manager"),
   validateRequest(productValidation.createBulkProductValidationSchema),
   productController.createBulkProduct
 );
-router.post(
+router.delete(
   "/delete-product/:id",
   auth("admin", "manager"),
   productController.deleteProduct
 );
-router.post(
+router.delete(
   "/delete-bulk-product",
   auth("admin", "manager"),
   validateRequest(productValidation.deleteBulkProductByIdValidationSchema),
@@ -39,4 +45,6 @@ router.get(
   productController.getAllActiveProductByFilter
 );
 router.get("/get-all-products", productController.getAllProductByFilter);
+router.get("/get-inventory", productController.getInventory);
+
 export const productRouter = router;

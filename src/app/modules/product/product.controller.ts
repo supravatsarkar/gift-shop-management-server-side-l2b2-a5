@@ -12,6 +12,16 @@ const createProduct = catchAsync(async (req, res) => {
     statusCode: httpStatus.CREATED,
   });
 });
+const updateProductById = catchAsync(async (req, res) => {
+  const id = req.params.id;
+  const data = await productService.updateProductById(id, req.body);
+  sendResponse(res, {
+    success: true,
+    data,
+    message: "Product updated successfully!",
+    statusCode: httpStatus.OK,
+  });
+});
 const deleteProduct = catchAsync(async (req, res) => {
   const id = req.params.id;
   const data = await productService.deleteProductById(id);
@@ -52,9 +62,10 @@ const createBulkProduct = catchAsync(async (req, res) => {
   });
 });
 const getAllActiveProductByFilter = catchAsync(async (req, res) => {
-  const data = await productService.getAllActiveProductByFilter(
-    req.query as any
-  );
+  const data = await productService.getAllProductByFilter({
+    isActive: true,
+    ...req.query,
+  } as any);
   sendResponse(res, {
     success: true,
     data,
@@ -71,13 +82,24 @@ const getAllProductByFilter = catchAsync(async (req, res) => {
     statusCode: httpStatus.OK,
   });
 });
+const getInventory = catchAsync(async (req, res) => {
+  const data = await productService.getInventory(req.query as any);
+  sendResponse(res, {
+    success: true,
+    data,
+    message: "Products inventories retrieve successfully!",
+    statusCode: httpStatus.OK,
+  });
+});
 
 export const productController = {
   createProduct,
+  updateProductById,
   createBulkProduct,
   deleteProduct,
   deleteBulkProduct,
   restoreProduct,
   getAllActiveProductByFilter,
   getAllProductByFilter,
+  getInventory,
 };
