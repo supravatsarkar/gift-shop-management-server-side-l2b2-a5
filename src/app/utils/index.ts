@@ -37,6 +37,9 @@ const _sortOrder = (sortby: string = "createdAt", order: string = "asc") => {
   // console.log("order", order);
   const _order = order === "asc" ? 1 : -1;
   // console.log("_order", _order);
+  if (!sortby) {
+    sortby = "createdAt";
+  }
   return {
     [sortby]: _order as SortOrder,
   };
