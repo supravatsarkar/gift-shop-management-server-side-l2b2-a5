@@ -12,7 +12,20 @@ const markAsSell = catchAsync(async (req, res) => {
     statusCode: httpStatus.CREATED,
   });
 });
+const viewSalesHistory = catchAsync(async (req, res) => {
+  const { category, year } = req.query;
+  const data = await saleService.viewSalesHistory(
+    category as string,
+    year as string
+  );
+  sendResponse(res, {
+    success: true,
+    data,
+    statusCode: httpStatus.OK,
+  });
+});
 
 export const saleController = {
   markAsSell,
+  viewSalesHistory,
 };

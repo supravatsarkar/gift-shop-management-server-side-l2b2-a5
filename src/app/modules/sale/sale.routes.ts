@@ -8,5 +8,10 @@ router.post(
   validateRequest(saleValidation.markAsSell),
   saleController.markAsSell
 );
+router.get(
+  "/view-sales-history",
+  validateRequest(saleValidation.viewSalesHistory),
+  saleController.viewSalesHistory
+);
 
 export const salesRouter = router;

@@ -57,6 +57,44 @@ const markAsSell = async (
   }
 };
 
+const viewSalesHistory = async (category: string, year: string) => {
+  const currentYear = Number(year) || new Date().getFullYear();
+  console.log("currentYear", currentYear);
+  const categoryArray = ["daily", "weekly", "monthly", "yearly"];
+  let groupId: any = {
+    $dateToString: { format: "%d-%m-%Y", date: "$dateOfSale" },
+  };
+  let matchFilter: any = { yearOfSale: { $eq: currentYear } };
+  if (category === categoryArray[1]) {
+    groupId = { $week: "$dateOfSale" };
+  } else if (category === categoryArray[2]) {
+    groupId = { $month: "$dateOfSale" };
+  } else if (category === categoryArray[3]) {
+    groupId = { $year: "$dateOfSale" };
+    matchFilter = {};
+  }
+  console.log("groupId=>", groupId);
+  const result = await SaleModel.aggregate([
+    { $addFields: { yearOfSale: { $year: "$dateOfSale" } } },
+    {
+      $match: matchFilter,
+    },
+    {
+      $group: {
+        _id: groupId,
+        salesCount: {
+          $sum: "$quantity",
+        },
+      },
+    },
+    {
+      $sort: { _id: 1 },
+    },
+  ]);
+  return result;
+};
+
 export const saleService = {
   markAsSell,
+  viewSalesHistory,
 };

@@ -7,7 +7,14 @@ const markAsSell = z.object({
     dateOfSale: z.string(),
   }),
 });
+const viewSalesHistory = z.object({
+  query: z.object({
+    category: z.enum(["daily", "weekly", "monthly", "yearly"]),
+    year: z.string().optional(),
+  }),
+});
 
 export const saleValidation = {
   markAsSell,
+  viewSalesHistory,
 };
