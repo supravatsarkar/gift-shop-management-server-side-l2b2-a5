@@ -13,5 +13,10 @@ router.get(
   auth("admin", "manager"),
   userController.getCustomers
 );
+router.get(
+  "/get-dashboard-summery",
+  auth("admin", "manager"),
+  userController.getDashboardSummary
+);
 
 export const userRouter = router;

@@ -90,6 +90,7 @@ const getAllProductByFilter = async ({
     newFilter.deletedAt = { $eq: null };
   }
   filter = newFilter;
+  console.log("skip=>", skip);
   console.log("filter=>", filter);
   const sortObject = _sortOrder(sortby as string, order as string);
   console.log("sortObject", sortObject);
@@ -103,8 +104,8 @@ const getAllProductByFilter = async ({
     // deletedAt: { $eq: null },
   })
     .skip(skip)
-    .limit(limit)
-    .sort(sortObject);
+    .sort(sortObject)
+    .limit(limit);
   return {
     page,
     limit,

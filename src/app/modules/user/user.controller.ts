@@ -30,5 +30,18 @@ const getCustomers = catchAsync(async (req, res, next) => {
     data: customers,
   });
 });
+const getDashboardSummary = catchAsync(async (req, res, next) => {
+  const customers = await userService.getDashboardSummary();
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.ACCEPTED,
+    data: customers,
+  });
+});
 
-export const userController = { getMe, getMangers, getCustomers };
+export const userController = {
+  getMe,
+  getMangers,
+  getCustomers,
+  getDashboardSummary,
+};
