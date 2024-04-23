@@ -42,6 +42,7 @@ const _sortOrder = (sortby: string = "createdAt", order: string = "asc") => {
   }
   return {
     [sortby]: _order as SortOrder,
+    _id: _order as SortOrder,
   };
 };
 
