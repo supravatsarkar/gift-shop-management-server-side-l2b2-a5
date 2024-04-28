@@ -16,7 +16,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:3000",
-      "https://l2b2-full-stack-a5-client-side.vercel.app",
+      `${process.env.UI_HOST}`,
     ],
     credentials: true,
   })
