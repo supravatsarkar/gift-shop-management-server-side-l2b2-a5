@@ -22,15 +22,19 @@ const registerUser = catchAsync(async (req, res, next) => {
 const login = catchAsync(async (req, res, next) => {
   const { email, phone, password } = req.body;
   const response = await authService.login(email, phone, password);
-  res.cookie("refresh_token", response.refreshToken, {
-    // maxAge: 100000,
-    // httpOnly: config.NODE_ENV !== "development" ? true : false,
-  });
+  if (response?.refreshToken) {
+    res.cookie("refresh_token", response.refreshToken, {
+      // maxAge: 100000,
+      // httpOnly: config.NODE_ENV !== "development" ? true : false,
+    });
+  }
+
+  console.log("response=>", response);
   sendResponse<Record<string, unknown>>(res, {
     success: true,
     statusCode: httpStatus.ACCEPTED,
     message: "success",
-    data: { accessToken: response.accessToken },
+    data: response,
   });
 });
 const renewAccessToken = catchAsync(async (req, res, next) => {

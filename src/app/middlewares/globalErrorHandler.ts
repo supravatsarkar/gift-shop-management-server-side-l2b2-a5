@@ -6,7 +6,7 @@ import { TErrorDetails } from "../interface/types";
 import zodErrorParse from "../errors/zodError";
 
 const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
-  console.log({ GlobalError: error });
+  console.log("GlobalError=>", error);
   let message = "Something Went Wrong!";
   let statusCode = 500;
   let errorDetails: TErrorDetails[] = [

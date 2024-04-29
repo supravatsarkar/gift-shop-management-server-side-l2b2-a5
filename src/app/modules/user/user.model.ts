@@ -26,6 +26,10 @@ const userSchema = new Schema<TUser>(
       required: true,
       default: "customer",
     },
+    lastLogin: {
+      type: Date,
+      // default: new Date(),
+    },
     isVerified: {
       type: Boolean,
       default: false,

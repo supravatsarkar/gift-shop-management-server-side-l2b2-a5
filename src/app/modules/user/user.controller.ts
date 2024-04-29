@@ -13,17 +13,41 @@ const getMe = catchAsync(async (req, res, next) => {
     data: user,
   });
 });
-const getMangers = catchAsync(async (req, res, next) => {
-  const managers = await userService.findUsersByFilter({ role: "manager" });
-  console.log({ managers });
+const updateUserProfile = catchAsync(async (req, res, next) => {
+  const id = req.params.id;
+  const response = await userService.updateUserProfile(id, req.body);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.ACCEPTED,
-    data: managers,
+    message: "User data updated successfully!",
+    data: response,
+  });
+});
+const getMangers = catchAsync(async (req, res, next) => {
+  const { limit, page } = req.query;
+  const data = await userService.findUsersByFilter({
+    filter: {
+      role: "manager",
+    },
+    limit: Number(limit || 10),
+    page: Number(page || 1),
+  });
+  // console.log({ managers });
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.ACCEPTED,
+    data: data,
   });
 });
 const getCustomers = catchAsync(async (req, res, next) => {
-  const customers = await userService.findUsersByFilter({ role: "customer" });
+  const { limit, page } = req.query;
+  const customers = await userService.findUsersByFilter({
+    filter: {
+      role: "customer",
+    },
+    limit: Number(limit || 10),
+    page: Number(page || 1),
+  });
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.ACCEPTED,
@@ -41,6 +65,7 @@ const getDashboardSummary = catchAsync(async (req, res, next) => {
 
 export const userController = {
   getMe,
+  updateUserProfile,
   getMangers,
   getCustomers,
   getDashboardSummary,

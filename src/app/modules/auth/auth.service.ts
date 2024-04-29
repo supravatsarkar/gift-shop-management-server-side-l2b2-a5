@@ -31,7 +31,7 @@ const createUser = async (userData: TUser) => {
 
     userData.password = await _encryptPassword(userData.password);
     userData.isEnabled = true;
-    userData.isVerified = true;
+    // userData.isVerified = true;
     const user = (await UserModel.create(userData)) as Partial<TUser>;
     delete user.password;
     return user;
@@ -51,9 +51,9 @@ const login = async (email: string, phone: string, password: string) => {
     ],
   });
 
-  console.log({ userExist });
+  console.log("userExist=>", userExist);
   // user existing check
-  if (!userExist) {
+  if (!userExist || userExist?.isDeleted) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "Invalid credential. Try agin!!"
@@ -61,19 +61,29 @@ const login = async (email: string, phone: string, password: string) => {
   }
 
   // password compare
-  const isPasswordMatch = await _comparePassword(password, userExist.password);
+  const isPasswordMatch = await _comparePassword(
+    password,
+    userExist?.password as string
+  );
   if (!isPasswordMatch) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "Invalid credential. Try agin!!"
     );
   }
+  const userDataRes: Partial<TUser> = JSON.parse(JSON.stringify(userExist));
+  delete userDataRes?.password;
+  if (!userExist.isVerified || !userExist.isEnabled) {
+    return { accessToken: null, refreshToken: null, ...userDataRes };
+  }
+  // update login time
+  await UserModel.findByIdAndUpdate(userExist._id, { lastLogin: new Date() });
 
   // create tokens
   const jwtPayload = {
-    id: userExist.id,
-    email: userExist.email,
-    role: userExist.role,
+    id: userExist?._id,
+    email: userExist?.email,
+    role: userExist?.role,
   };
   const accessToken = _generateAuthToken({
     ...jwtPayload,
@@ -84,7 +94,7 @@ const login = async (email: string, phone: string, password: string) => {
     tokenType: "refresh-token",
   });
 
-  return { accessToken, refreshToken };
+  return { accessToken, refreshToken, ...userDataRes };
 };
 const renewAccessToken = async (refreshToken: string) => {
   let decodedPayload;

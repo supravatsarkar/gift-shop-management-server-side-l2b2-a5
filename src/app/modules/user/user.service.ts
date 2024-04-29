@@ -1,3 +1,7 @@
+import { isValidObjectId } from "mongoose";
+import { pagination } from "../../constants";
+import httpStatus from "../../constants/httpStatus";
+import AppError from "../../errors/AppError";
 import ProductModel from "../product/product.model";
 import SaleModel from "../sale/sale.model";
 import { TUser } from "./user.interface";
@@ -10,12 +14,33 @@ const findUserByFilter = async (filter: Partial<TUser>) => {
   //   }
   return await UserModel.findOne(filter).select("-password");
 };
-const findUsersByFilter = async (filter: Partial<TUser>) => {
-  filter.isDeleted = false;
+const findUsersByFilter = async ({
+  filter,
+  page,
+  limit,
+}: {
+  filter: Partial<TUser>;
+  page: number;
+  limit: number;
+}) => {
+  page <= 0 ? (page = 1) : page;
+  page = Number(page || pagination.page);
+  console.log("page=>", page);
+  limit = Number(limit || pagination.limit);
+
+  const skip = (page - 1) * limit;
+  // filter.isDeleted = false;
   //   if(filter.id){
   //     filter.id = new
   //   }
-  return await UserModel.find(filter).select("-password");
+
+  const count = await UserModel.countDocuments(filter);
+  const countPage = Math.ceil(count / limit);
+  const users = await UserModel.find(filter)
+    .skip(skip)
+    .limit(limit)
+    .select("-password");
+  return { users, page, limit, count, countPage };
 };
 const getDashboardSummary = async () => {
   const totalListedProducts = await ProductModel.countDocuments();
@@ -53,8 +78,33 @@ const getDashboardSummary = async () => {
   };
 };
 
+const updateUserProfile = async (id: string, payload: Partial<TUser>) => {
+  try {
+    if (!isValidObjectId(id)) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Invalid user id!");
+    }
+    const userExist = await UserModel.findById(id);
+    if (!userExist) {
+      throw new AppError(httpStatus.NOT_FOUND, "User does not exist!");
+    }
+    if (userExist.role === "admin") {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "Not allow to update admin data!"
+      );
+    }
+    console.log("payload=>", payload);
+    return await UserModel.findByIdAndUpdate(id, payload, {
+      runValidators: true,
+      returnDocument: "after",
+    }).select("-password");
+  } catch (error) {
+    throw error;
+  }
+};
 export const userService = {
   findUserByFilter,
   findUsersByFilter,
   getDashboardSummary,
+  updateUserProfile,
 };
